@@ -1,1 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LG Home Manager</title>
+    <style>
+        :root {
+            --primary-color: #A50034;
+            --primary-light: #FFF0F3;
+            --bg-color: #F7F9FA;
+            --card-bg: #FFFFFF;
+            --text-main: #111111;
+            --text-sub: #666666;
+            --border-color: #E5E8EB;
+            --radius: 16px;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #e4e7eb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+
+        .phone-frame {
+            width: 100%;
+            max-width: 412px;
+            height: 100vh;
+            max-height: 844px;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        @media (min-width: 413px) {
+            .phone-frame {
+                border-radius: 40px;
+                border: 10px solid #222;
+            }
+        }
+
+        .status-bar {
+            height: 44px;
+            background: #FFFFFF;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .app-header {
+            height: 56px;
+            background: #FFFFFF;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .app-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .app-title span {
+            color: var(--primary-color);
+        }
+
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 90px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .nav-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: #FFFFFF;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-sub);
+            font-size: 11px;
+            gap: 4px;
+            flex: 1;
+            height: 100%;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .alert-card {
+            background: var(--primary-light);
+            border: 1px solid rgba(165, 0, 52, 0.2);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .alert-icon {
+            font-size: 24px;
+            background: #fff;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .alert-info h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .alert-info p {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 10px;
+        }
+
+        .btn-action {
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .device-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .device-card:active {
+            transform: scale(0.97);
+        }
+
+        .device-card .icon {
+            font-size: 28px;
+        }
+
+        .device-card .name {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .device-card .status {
+            font-size: 12px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .banner {
+            background: linear-gradient(135deg, #2b2b2b, #111);
+            color: #fff;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .banner h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .banner p {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--primary-color);
+            cursor: pointer;
+            margin-bottom: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .food-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .food-item:last-child {
+            border-bottom: none;
+        }
+
+        .d-day {
+            background: #FFE8EC;
+            color: var(--primary-color);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<div class="phone-frame">
+    <div class="status-bar">
+        <span>09:41</span>
+        <span>LG ThinQ AI</span>
+    </div>
+
+    <header class="app-header">
+        <div class="app-title">LG <span>Home Manager</span></div>
+        <div style="font-size: 20px; cursor: pointer;">🔔</div>
+    </header>
+
+    <div class="app-content" id="mainContent">
+        <div id="screen-home" class="screen active">
+            <div class="banner">
+                <div>
+                    <h3>AI 집안일 비서 가동중</h3>
+                    <p>우리 집 최적의 우선순위를 분석했습니다.</p>
+                </div>
+                <div style="font-size: 32px;">🤖</div>
+            </div>
+
+            <div class="section-title">🚨 지금 해야 할 일</div>
+
+            <div class="alert-card">
+                <div class="alert-icon">🍽️</div>
+                <div class="alert-info">
+                    <h4>식기세척기 세척 완료</h4>
+                    <p>식기를 꺼내주세요.</p>
+                    <button class="btn-action" onclick="alert('식기세척기 완료 처리되었습니다!')">완료하기</button>
+                </div>
+            </div>
+
+            <div class="alert-card">
+                <div class="alert-icon">🧊</div>
+                <div class="alert-info">
+                    <h4>냉장고 대파 소비기한 임박</h4>
+                    <p>오늘 저녁 요리에 활용해보세요.</p>
+                    <button class="btn-action" onclick="switchScreen('recipe')">요리 추천 보기</button>
+                </div>
+            </div>
+
+            <div class="alert-card">
+                <div class="alert-icon">👕</div>
+                <div class="alert-info">
+                    <h4>세탁기 코스 완료</h4>
+                    <p>건조기 연동을 추천합니다.</p>
+                    <button class="btn-action" onclick="alert('건조기 예열 및 맞춤 코스 전송 완료!')">건조기 연동</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-devices" class="screen">
+            <div class="section-title">🏠 연결된 LG 가전 (6)</div>
+            <div class="device-grid">
+                <div class="device-card" onclick="switchScreen('fridge-detail')">
+                    <div class="icon">🧊</div>
+                    <div class="name">냉장고</div>
+                    <div class="status">식재료 3개 임박</div>
+                </div>
+                <div class="device-card" onclick="alert('식기세척기 상세 제어 화면입니다.')">
+                    <div class="icon">🍽️</div>
+                    <div class="name">식기세척기</div>
+                    <div class="status">세척 완료</div>
+                </div>
+                <div class="device-card" onclick="alert('세탁기 상세 제어 화면입니다.')">
+                    <div class="icon">👕</div>
+                    <div class="name">세탁기</div>
+                    <div class="status">세탁 완료</div>
+                </div>
+                <div class="device-card" onclick="alert('오븐 상세 제어 화면입니다.')">
+                    <div class="icon">🔥</div>
+                    <div class="name">광파오븐</div>
+                    <div class="status">대기 중</div>
+                </div>
+                <div class="device-card" onclick="alert('로봇청소기 상세 제어 화면입니다.')">
+                    <div class="icon">🧹</div>
+                    <div class="name">로봇청소기</div>
+                    <div class="status">충전 중</div>
+                </div>
+                <div class="device-card" onclick="alert('에어컨 상세 제어 화면입니다.')">
+                    <div class="icon">❄️</div>
+                    <div class="name">휘센 에어컨</div>
+                    <div class="status">쾌적 24℃</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-recipe" class="screen">
+            <div class="section-title">🍳 AI 맞춤 레시피</div>
+            <div class="card">
+                <h3 style="font-size:16px; margin-bottom:6px; color:var(--primary-color);">대파 닭가슴살 볶음밥</h3>
+                <p style="font-size:13px; color:var(--text-sub); margin-bottom:12px;">소비기한이 임박한 '대파'를 활용한 추천 메뉴입니다.</p>
+                <div style="font-size:13px; background:var(--bg-color); padding:10px; border-radius:8px; margin-bottom:12px;">
+                    ⏱️ 조리시간: 15분 &nbsp;|&nbsp; 난이도: 쉬움 &nbsp;|&nbsp; 2인분
+                </div>
+                <div style="font-size:13px; margin-bottom:14px;">
+                    <strong>필요 재료:</strong> 대파(임박), 닭가슴살, 계란, 밥
+                </div>
+                <button class="btn-action" style="width:100%; padding:10px; font-size:14px;" onclick="alert('오븐/조리기기로 맞춤 온도 설정값이 전송되었습니다!')">오븐/조리기기 연동하기</button>
+            </div>
+        </div>
+
+        <div id="screen-settings" class="screen">
+            <div class="section-title">⚙️ 설정 및 안내</div>
+            <div class="card">
+                <h4 style="margin-bottom:8px; font-size:15px;">LG Home Manager Prototype</h4>
+                <p style="font-size:13px; color:var(--text-sub); line-height:1.5;">
+                    가전 상태를 사용자의 행동 루틴으로 변환하여 안내하는 AI 통합 관리 프로토타입입니다.
+                </p>
+            </div>
+        </div>
+
+        <div id="screen-fridge-detail" class="screen">
+            <button class="back-btn" onclick="switchScreen('devices')">← 가전 목록으로</button>
+            <div class="section-title">🧊 냉장고 스마트 관리</div>
+            <div class="card">
+                <h4 style="font-size:14px; margin-bottom:12px; font-weight:700;">⚠️ 소비기한 임박 식재료</h4>
+                <div class="food-item">
+                    <span>대파</span>
+                    <span class="d-day">1일 남음</span>
+                </div>
+                <div class="food-item">
+                    <span>우유</span>
+                    <span class="d-day">2일 남음</span>
+                </div>
+                <div class="food-item">
+                    <span>계란</span>
+                    <span class="d-day">3일 남음</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav-bar">
+        <button class="nav-item active" onclick="switchScreen('home', this)">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            홈
+        </button>
+        <button class="nav-item" onclick="switchScreen('devices', this)">
+            <svg viewBox="0 0 24 24"><path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
+            가전
+        </button>
+        <button class="nav-item" onclick="switchScreen('recipe', this)">
+            <svg viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1zm-9 8a6 6 0 1 1 6-6 6.007 6.007 0 0 1-6 6z"/></svg>
+            요리추천
+        </button>
+        <button class="nav-item" onclick="switchScreen('settings', this)">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            설정
+        </button>
+    </nav>
+</div>
+
+<script>
+    function switchScreen(screenId, element) {
+        const screens = document.querySelectorAll('.screen');
+        screens.forEach(screen => screen.classList.remove('active'));
+
+        const targetScreen = document.getElementById('screen-' + screenId);
+        if (targetScreen) {
+            targetScreen.classList.add('active');
+        }
+
+        if (element) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+        }
+        
+        const contentArea = document.getElementById('mainContent');
+        contentArea.scrollTop = 0;
+    }
+</script>
+
+</body>
+</html>
