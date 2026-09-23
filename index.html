@@ -319,7 +319,7 @@
     </header>
 
     <div class="app-content" id="mainContent">
-        <div id="screen-home" class="screen active">
+        <div id="screen-home" class="screen">
             <div class="banner">
                 <div>
                     <h3>AI 집안일 비서 가동중</h3>
@@ -479,6 +479,9 @@
         const contentArea = document.getElementById('mainContent');
         contentArea.scrollTop = 0;
     }
+
+    // 처음 페이지가 열릴 때 홈 화면을 기본으로 띄워줍니다.
+    switchScreen('home');
 </script>
 
 </body>
